@@ -1,0 +1,21 @@
+{
+  "name": "tfl",
+  "version": "1.0.0",
+  "description": "Slackbot for querying the TfL API",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "lint": "eslint ./src/*.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "eslint": "^4.19.1",
+    "mocha": "^5.1.1"
+  },
+  "dependencies": {
+    "botkit": "^0.6.13",
+    "request": "^2.85.0"
+  }
+}
