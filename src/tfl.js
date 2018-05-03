@@ -1,6 +1,7 @@
 const request = require('request');
+const debug = require('debug')('slack-tfl');
 
-const API_URL = 'https://api.tfl.gov.uk';
+const API_BASE_URL = 'https://api.tfl.gov.uk';
 
 const COLORS = {
   'bakerloo': '996633',
@@ -19,44 +20,42 @@ const COLORS = {
   'waterloo-city': '66CCCC',
 };
 
-function TFL(config) {
+class TFL {
 
-  if (!config.appId || !config.appKey) {
-    throw new Error('ERROR: TfL API credentials missing or invalid');
+  constructor(
+    appId = process.env.TFL_APP_ID,
+    appKey = process.env.TFL_APP_KEY,
+    apiBaseUrl = API_BASE_URL,
+  ) {
+    if (!(appId && appKey)) {
+      throw new Error('Missing TfL API Credentials');
+    }
+    this.request = request.defaults({
+      baseUrl: apiBaseUrl,
+      qs: {
+        detail: false,
+        app_id: appId, // eslint-disable-line
+        app_key: appKey, // eslint-disable-line
+      },
+    });
   }
 
-  this.COLORS = COLORS;
+  static color(lineId) {
+    return COLORS[lineId] || 'FFFFFF';
+  }
 
-  const defaults = {
-    baseUrl: API_URL,
-    qs: {
-      app_id: config.appId, // eslint-disable-line
-      app_key: config.appKey, // eslint-disable-line
-    },
-  };
-
-  this.Get = function(url) {
+  get(url) {
+    debug(`TFL.get(${url})`);
     return new Promise((resolve, reject) => {
-      request
-        .defaults(defaults)
-        .get(url, (err, res, body) => {
-          if (err) {
-            return reject(err);
-          }
-          if (res.statusCode != 200) {
-            return reject(new Error(`TfL API responded with: ${res.statusCode} - ${res.statusMessage}`));
-          }
-          let data;
-          try {
-            data = JSON.parse(body);
-          } catch(err) {
-            return reject(err);
-          }
-          return resolve(data);
-        });
+      this.request.get(url, (err, res, body) => {
+        if (err) return reject(err);
+        if (res.statusCode != 200) {
+          return reject(new Error(`Server responded with ${res.statusCode}`));
+        }
+        return resolve(body);
+      });
     });
-  };
-
+  }
 }
 
 module.exports = TFL;

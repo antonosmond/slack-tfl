@@ -1,5 +1,6 @@
 const qs = require('qs');
 const TFL = require('./tfl');
+const debug = require('debug')('slack-tfl');
 
 const token = process.env.SLACK_VERIFICATION_TOKEN;
 
@@ -18,6 +19,7 @@ const usage = `
 `;
 
 function authenticate(t) {
+  debug('slack.authenticate()');
   return t == token;
 }
 
@@ -25,10 +27,11 @@ function parseBody(body) {
   return qs.parse(body);
 }
 
-function command(body) {
+function command(text) {
+  debug(`slack.command(${text})`);
   return new Promise(resolve => {
     const args = [];
-    body.text.split(' ').forEach(a => a.trim().length && args.push(a));
+    text.split(' ').forEach(a => a.trim().length && args.push(a));
     const subcommand = args.shift();
     switch (subcommand) {
     case 'status': {
@@ -41,9 +44,10 @@ function command(body) {
 }
 
 async function getStatus() {
+  debug('slack.getStatus()');
   let data;
   try {
-    data = await tfl.Get(`Line/Mode/${MODES.join(',')}/Status`);
+    data = await tfl.get(`Line/Mode/${MODES.join(',')}/Status`);
   } catch(err) {
     throw err;
   }
@@ -58,6 +62,7 @@ async function getStatus() {
 }
 
 function buildAttachment(line) {
+  debug(`buildAttachment(${line})`);
   const attachment = {};
   attachment.color = tfl.COLORS[line.id];
   attachment.title = line.name;

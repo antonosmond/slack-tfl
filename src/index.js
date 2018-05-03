@@ -1,5 +1,6 @@
 const slack = require('./slack');
 const Response = require('./response');
+const debug = require('debug')('slack-tfl');
 
 async function handler(event, context, callback) {
 
@@ -11,21 +12,23 @@ async function handler(event, context, callback) {
     const body = slack.parseBody(event.body);
 
     if (!slack.authenticate(body.token)) {
+      debug('Auth failure');
       return response.send(401);
     }
 
-    const res = await slack.command(body);
+    const res = await slack.command(body.text);
 
     return response.send(200, res);
 
   } catch(err) {
 
-    console.log(err);
+    console.log(err); // eslint-disable-line
+
     return callback(null, {
       isBase64Encoded: false,
       statusCode: 500,
       headers: {},
-      body: null,
+      body: {},
     });
 
   }
