@@ -4,10 +4,10 @@
   "description": "Slackbot for querying the TfL API",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha --recursive",
     "lint": "eslint --fix ."
   },
-  "author": "",
+  "author": "Anton Osmond",
   "license": "ISC",
   "devDependencies": {
     "chai": "^4.1.2",
@@ -16,7 +16,7 @@
     "nock": "^9.2.5"
   },
   "dependencies": {
-    "debug": "^3.1.0",
+    "fuzzyset.js": "0.0.4",
     "qs": "^6.5.1",
     "request": "^2.85.0"
   }

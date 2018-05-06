@@ -16,6 +16,7 @@ module.exports = {
     "class-methods-use-this": "error",
     "comma-dangle": ["error", "always-multiline"],
     "default-case": "error",
+    "eqeqeq": "error",
     "indent": ["error", 2],
     "linebreak-style": ["error", "unix"],
     "no-console": "warn",

@@ -1,9 +1,9 @@
 const request = require('request');
-const debug = require('debug')('slack-tfl');
+const FuzzySet = require('fuzzyset.js');
 
 const API_BASE_URL = 'https://api.tfl.gov.uk';
 
-const COLORS = {
+const LINES = {
   'bakerloo': '996633',
   'central': 'CC3333',
   'circle': 'FFCC00',
@@ -19,6 +19,8 @@ const COLORS = {
   'victoria': '0099CC',
   'waterloo-city': '66CCCC',
 };
+
+const fuzzy = FuzzySet(Object.keys(LINES), false);
 
 class TFL {
 
@@ -40,19 +42,28 @@ class TFL {
     });
   }
 
-  static color(lineId) {
-    return COLORS[lineId] || 'FFFFFF';
+  static fuzzyLine(line) {
+    const matches = fuzzy.get(line);
+    if (matches && matches.length) {
+      return matches[0][1];
+    }
+    return null;
   }
 
-  get(url) {
-    debug(`TFL.get(${url})`);
+  static color(lineId) {
+    return LINES[lineId] || 'FFFFFF';
+  }
+
+  get(path = '/') {
     return new Promise((resolve, reject) => {
-      this.request.get(url, (err, res, body) => {
-        if (err) return reject(err);
-        if (res.statusCode != 200) {
+      this.request.get(path, (err, res, body) => {
+        if (err) {
+          return reject(err);
+        }
+        if (res.statusCode !== 200) {
           return reject(new Error(`Server responded with ${res.statusCode}`));
         }
-        return resolve(body);
+        return resolve(JSON.parse(body));
       });
     });
   }

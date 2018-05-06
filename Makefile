@@ -8,16 +8,16 @@ all: depcheck lint test zip
 prune:
 	npm prune
 
-install:
+install: prune
 	npm install
 
-depcheck: prune install
+depcheck: install
 	depcheck
 
-test:
+test: install
 	npm test
 
-lint:
+lint: install
 	npm run lint
 
 clean:

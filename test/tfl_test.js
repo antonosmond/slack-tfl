@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const nock = require('nock');
 
-const TFL = require('../src/TFL');
+const TFL = require('../src/tfl');
 
 describe('class TFL', () => {
 
@@ -85,6 +85,10 @@ describe('class TFL', () => {
 
   describe('status', () => {
 
+    beforeEach(() => {
+      nock.cleanAll();
+    });
+
     const appId = 'appId';
     const appKey = 'appKey';
 
@@ -94,7 +98,7 @@ describe('class TFL', () => {
 
       const scope = nock('https://api.tfl.gov.uk')
         .get(/\/some\/api\/path.*/)
-        .reply(200, uri => { return uri; });
+        .reply(200, uri => { return JSON.stringify(uri); });
 
       const uri = await tfl.get('/some/api/path');
 
@@ -112,7 +116,7 @@ describe('class TFL', () => {
           app_id: 'appId', //eslint-disable-line
           app_key: 'appKey', //eslint-disable-line
         })
-        .reply(200, uri => { return uri; });
+        .reply(200, uri => { return JSON.stringify(uri); });
 
       const uri = await tfl.get('/some/api/path');
 
@@ -127,29 +131,17 @@ describe('class TFL', () => {
 
       const scope = nock('https://api.tfl.gov.uk')
         .get(/.*/)
-        .reply(200, 'OK');
+        .reply(200, JSON.stringify('OK'));
 
-      const res = await tfl.get('/some/api/path');
+      let res;
+      try {
+        res = await tfl.get('/some/api/path');
+      } catch(err) {
+        throw err;
+      }
 
       expect(scope.isDone()).to.be.true;
       expect(res).to.equal('OK');
-
-    });
-
-    describe('line', () => {
-
-      it('should only return status for the line specified', async () => {
-
-        const scope = nock('https://api.tfl.gov.uk')
-          .get(/.*/)
-          .reply(200, 'OK');
-
-        const res = await tfl.get('/some/api/path');
-
-        expect(scope.isDone()).to.be.true;
-        expect(res).to.equal('OK');
-
-      });
 
     });
 
